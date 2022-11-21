@@ -1,0 +1,5 @@
+*.pdf
+*.zip
+*.mov
+__pycache__
+*.swp
