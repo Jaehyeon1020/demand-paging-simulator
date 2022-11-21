@@ -27,6 +27,6 @@ first_line = input.readline()
 # get second line: page reference string
 page_reference_string = input.readline()
 
-system_info = make_system_info(first_line)
+system_info = get_system_info(first_line)
 
 input.close()
