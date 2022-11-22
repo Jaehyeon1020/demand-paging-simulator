@@ -22,7 +22,7 @@ class Result:
 
         print("\n=============== %s ALGORITHM RESULT ==============="%self.type)
         for result in self.memory_info:
-            print("<AT TIME %d>"%time)
+            print("<TIME %d>"%time)
             print("Reference string: %s"%result[0]) # print ref string
             print("Memory state: ", end='')
             print(result[1]) # print memory state
