@@ -59,10 +59,10 @@ def get_min_index(allocated_page_frames: list, time: int, references: str):
 
 
 # MIN 기법을 사용했을 때의 동작 구현
-def min(system_info: dict, references: str):
+def get_min_result(system_info: dict, references: str):
     result = Result("MIN") # saving result: type MIN
 
-    frames_num = system_info["frames"]  # 할당 page frame 개수
+    frames = system_info["frames"]  # 할당 page frame 개수
     reference_len = system_info["len_page_reference_string"] # page reference string 길이
     allocated_page_frames = []  # 현재 할당된 page frame: 정해진 개수 넘어서 저장 불가능
 
@@ -71,11 +71,11 @@ def min(system_info: dict, references: str):
     for time in range(0, reference_len):
         is_page_fault = False # 각 time마다 page fault의 여부 저장 (기본 false)
 
-        appending_result = append_to_frame(allocated_page_frames, references[time], frames_num)
+        appending_result = append_to_frame(allocated_page_frames, references[time], frames)
         # frame에 올리는게 실패하는 경우: page fault -> page replacement needed
         if appending_result[0] is False:
             del allocated_page_frames[get_min_index(allocated_page_frames, time, references)] # 가장 오래 참조되지 않을 페이지 지우기
-            append_to_frame(allocated_page_frames, references[time], frames_num) # 필요한 page를 frame에 할당
+            append_to_frame(allocated_page_frames, references[time], frames) # 필요한 page를 frame에 할당
             result.increase_total_page_fault() # 총 page fault 횟수 +
             is_page_fault = True
         
@@ -88,6 +88,43 @@ def min(system_info: dict, references: str):
     
     return result
 
-# LRU 기법을 사용했을 때의 동작 구현
-def lru(system_info: dict, references: str):
-    pass
+# 할당되어있는 페이지 리스트에서 가장 오래전에 참조되었던 페이지의 index를 반환
+def get_lru_index(allocated_page_frames: list, last_references_time: list):
+    last_references_time_allocated = [] # 현재 할당되어있는 page에 대한 마지막 참조 시점 list 생성
+
+    for page in allocated_page_frames:
+        last_references_time_allocated.append(last_references_time[int(page)])
+    
+    referenced_minimum = min(last_references_time_allocated)
+
+    return last_references_time_allocated.index(referenced_minimum) # allocated_page_frames에서 가장 적게 참조된 page가 있는 index 반환
+
+# LRU(Least Recently Used) 기법을 사용했을 때의 동작 구현
+def get_lru_result(system_info: dict, references: str):
+    result = Result("LRU")
+
+    pages = system_info["pages"] # process가 갖는 page 개수
+    frames = system_info["frames"] # 최대 할당 가능 page frame 개수
+    reference_len = system_info["len_page_reference_string"] # page reference string 길이
+    allocated_page_frames = [] # 현재 할당된 page frame
+    last_references_time = [-1 for i in range(pages)] # 모든 page의 마지막 참조 시점 저장
+
+    for time in range(0, reference_len):
+        is_page_fault = False # time마다 page fault 여부 저장
+        last_references_time[int(references[time])] = time # 현재 참조하는 page의 참조 시점 저장
+
+        appending_result = append_to_frame(allocated_page_frames, references[time], frames)
+        if appending_result[0] is False:
+            del allocated_page_frames[get_lru_index(allocated_page_frames, last_references_time)]
+            append_to_frame(allocated_page_frames, references[time], frames)
+            is_page_fault = True
+            result.increase_total_page_fault()
+
+        if appending_result[1] is True:
+            is_page_fault = True
+            result.increase_total_page_fault()
+
+        result.update_result(references[time], allocated_page_frames, is_page_fault)
+    
+    return result
+    
