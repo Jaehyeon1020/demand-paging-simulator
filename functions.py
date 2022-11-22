@@ -1,10 +1,10 @@
 """
 Demand Paging 구현에 필요한 functions:
-1. MIN page replacement 기법 구현 함수
+1. MIN page replacement 기법 구현 함수 v
 2. LRU page replacement 기법 구현 함수
 3. LFU page replacement 기법 구현 함수
 4. WS Memory Management 기법 구현 함수
-5. input.txt 분석 함수 (page reference string은 input.txt file로 주어짐)
+5. input.txt 분석 함수 (page reference string은 input.txt file로 주어짐) v
 6. 결과 출력 함수
 """
 
@@ -45,15 +45,21 @@ def get_min_index(allocated_page_frames: list, time: int, references: str):
             if (references[i] == allocated_page_frames[j]) and (page_distances[j] == -1):
                 page_distances[j] = distance
         distance += 1
-    
+
     change_need_idx = page_distances.index(max(page_distances))
+
+    # distance saving list에 -1이 남아있다: 현재 시점부터는 참조되지 않음 -> 교체
+    for idx in range(0, len(page_distances)):
+        if page_distances[idx] == -1:
+            change_need_idx = idx
+            break
     
     return change_need_idx
 
 
-# MIN 기법을 사용했을 때의 세부사항
+# MIN 기법을 사용했을 때의 동작 구현
 def min(system_info: dict, references: str):
-    result = Result() # saving result
+    result = Result("MIN") # saving result: type MIN
 
     frames_num = system_info["frames"]  # 할당 page frame 개수
     reference_len = system_info["len_page_reference_string"] # page reference string 길이
@@ -74,3 +80,7 @@ def min(system_info: dict, references: str):
         result.update_result(references[time], allocated_page_frames, is_page_fault)
     
     return result
+
+# LRU 기법을 사용했을 때의 동작 구현
+def lru(system_info: dict, references: str):
+    pass
