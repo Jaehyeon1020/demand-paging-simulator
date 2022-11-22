@@ -24,7 +24,7 @@ def get_system_info(line: str):
 
 # frame에 page를 할당: 할당된 개수보다 많은 page를 memory에 올리려고 시도할 시 첫 번째 반환값으로 false 반환, 그 외 memory 저장 후 true 반환
 # 교체가 아닌 삽입만이 필요한 상황인지 여부를 두 번째 반환값으로 반환
-def append_to_frame(allocated_page_frames: list, page: int, limit: int):
+def append_to_frame(allocated_page_frames: list, page: str, limit: int):
     # 이미 사용하고자 하는 페이지가 할당되어있는 경우
     if page in allocated_page_frames:
         return True, False
@@ -127,4 +127,43 @@ def get_lru_result(system_info: dict, references: str):
         result.update_result(references[time], allocated_page_frames, is_page_fault)
     
     return result
+
+# 할당되어있는 페이지 리스트에서 가장 적게 참조된 페이지의 index를 반환
+def get_lfu_index(allocated_page_frames: list, reference_frequents: list):
+    reference_frequents_allocated = [] # 현재 할당되어있는 page에 대한 참조 횟수 list 생성
+
+    for page in allocated_page_frames:
+        reference_frequents_allocated.append(reference_frequents[int(page)])
+
+    referenced_minimum = min(reference_frequents_allocated)
+
+    return reference_frequents_allocated.index(referenced_minimum)
     
+# LFU(Least Frequently Used) 기법을 사용했을 때의 동작 구현
+def get_lfu_result(system_info: dict, references: str):
+    result = Result("LFU")
+
+    pages = system_info["pages"] # process가 갖는 page 개수
+    frames = system_info["frames"] # 최대 할당 가능 page frame 개수
+    reference_len = system_info["len_page_reference_string"] # page reference string 길이
+    allocated_page_frames = [] # 현재 할당된 page frame
+    reference_frequents = [0 for i in range(pages)] # 모든 page의 참조 횟수 저장
+
+    for time in range(0, reference_len):
+        is_page_fault = False
+        reference_frequents[int(references[time])] += 1 # 현재 time에 참조하는 page의 참조 횟수 +1
+
+        appending_result = append_to_frame(allocated_page_frames, references[time], frames)
+        if appending_result[0] is False:
+            del allocated_page_frames[get_lfu_index(allocated_page_frames, reference_frequents)]
+            append_to_frame(allocated_page_frames, references[time], frames)
+            is_page_fault = True
+            result.increase_total_page_fault()
+        
+        if appending_result[1] is True:
+            is_page_fault = True
+            result.increase_total_page_fault()
+
+        result.update_result(references[time], allocated_page_frames, is_page_fault)
+    
+    return result
