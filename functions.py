@@ -22,18 +22,19 @@ def get_system_info(line: str):
 
     return system_info
 
-# frame에 page를 할당: 할당된 개수보다 많은 page를 memory에 올리려고 시도할 시 false 반환, 그 외 memory 저장 후 true 반환
-def add_to_frame(allocated_page_frames: list, page: int, limit: int):
-    # 이미 할당 가능한 개수의 page frame이 할당되어있는 경우
-    if len(allocated_page_frames) == limit:
-        return False
+# frame에 page를 할당: 할당된 개수보다 많은 page를 memory에 올리려고 시도할 시 첫 번째 반환값으로 false 반환, 그 외 memory 저장 후 true 반환
+# 교체가 아닌 삽입만이 필요한 상황인지 여부를 두 번째 반환값으로 반환
+def append_to_frame(allocated_page_frames: list, page: int, limit: int):
     # 이미 사용하고자 하는 페이지가 할당되어있는 경우
-    elif page in allocated_page_frames:
-        return True
-    # 새롭게 할당 가능한 경우
+    if page in allocated_page_frames:
+        return True, False
+    # 이미 할당 가능한 최대 개수의 page frame이 할당되어있는 경우
+    elif len(allocated_page_frames) == limit:
+        return False, False
+    # 새롭게 할당 가능한 경우 -> 교체가 아닌 삽입만 필요
     else:
         allocated_page_frames.append(page)
-        return True
+        return True, True
 
 # 할당되어있는 페이지들 중 time으로부터 가장 오랫동안 참조되지 않을 페이지의 index를 반환
 def get_min_index(allocated_page_frames: list, time: int, references: str):
@@ -70,11 +71,17 @@ def min(system_info: dict, references: str):
     for time in range(0, reference_len):
         is_page_fault = False # 각 time마다 page fault의 여부 저장 (기본 false)
 
+        appending_result = append_to_frame(allocated_page_frames, references[time], frames_num)
         # frame에 올리는게 실패하는 경우: page fault -> page replacement needed
-        if ~(add_to_frame(allocated_page_frames, references[time], frames_num)):
+        if appending_result[0] is False:
             del allocated_page_frames[get_min_index(allocated_page_frames, time, references)] # 가장 오래 참조되지 않을 페이지 지우기
-            add_to_frame(allocated_page_frames, references[time], frames_num) # 필요한 page를 frame에 할당
+            append_to_frame(allocated_page_frames, references[time], frames_num) # 필요한 page를 frame에 할당
             result.increase_total_page_fault() # 총 page fault 횟수 +
+            is_page_fault = True
+        
+        # 교체가 아닌 삽입만이 필요한 상황
+        if appending_result[1] is True:
+            result.increase_total_page_fault()
             is_page_fault = True
         
         result.update_result(references[time], allocated_page_frames, is_page_fault)
