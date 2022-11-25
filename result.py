@@ -57,7 +57,7 @@ class Result:
         print("========================================================")
         print("{:<8} {:<20} {:<15} {:<10}".format("Time", "Reference String", "Memory State", "Page Fault"))
         for result in self.memory_info:
-            is_page_fault = "YES" if result[2] else "NO"
+            is_page_fault = "F" if result[2] else ""
             print("{:<8} {:<20} {:<15} {:<10}".format(time, result[0], ",".join(result[1]), is_page_fault))
 
             time += 1
@@ -73,8 +73,8 @@ class Result:
         print("=======================================================================================================")
         print("{:<8} {:<20} {:<15} {:<14} {:<19} {:<20}".format("Time", "Reference String", "Memory State", "Page Fault", "Deleted From WS", "# of Frames Allocated"))
         for result in self.memory_info:
-            is_page_fault = "YES" if result[2] else "NO"
-            is_no_deleted = "None" if result[3] is None else result[3]
+            is_page_fault = "F" if result[2] else ""
+            is_no_deleted = "" if result[3] is None else result[3]
             print("{:<8} {:<20} {:<15} {:<14} {:<19} {:<20}".format(time, result[0], ",".join(result[1]), is_page_fault, is_no_deleted, len(result[1])))
 
             time += 1
