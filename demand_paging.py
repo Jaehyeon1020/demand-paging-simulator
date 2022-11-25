@@ -30,11 +30,11 @@ system_info = get_system_info(first_line) # get system info dictionary
 min_result = get_min_result(system_info, page_reference_string) # execute by MIN algorithm and get Result instance
 lru_result = get_lru_result(system_info, page_reference_string) # execute by LRU algorithm and get Result instance
 lfu_result = get_lfu_result(system_info, page_reference_string) # execute by LFU algorithm and get Result instance
-ws_result = None # execute by WS Memory Management algorithm and get Result instance
+ws_result = get_ws_result(system_info, page_reference_string) # execute by WS Memory Management algorithm and get Result instance
 
-min_result.print_result()
-lru_result.print_result()
-lfu_result.print_result()
-# ws_result.print_result()
+min_result.print_result() # print result of MIN algorithm
+lru_result.print_result() # print result of LRU algorithm
+lfu_result.print_result() # print result of LFU algorithm
+ws_result.ws_print_result() # print result of WS Memory Management algorithm
 
 input.close()
