@@ -84,7 +84,7 @@ def get_min_result(system_info: dict, references: str):
             result.increase_total_page_fault()
             is_page_fault = True
         
-        result.update_result(references[time], allocated_page_frames, is_page_fault)
+        result.update(references[time], allocated_page_frames, is_page_fault)
     
     return result
 
@@ -124,7 +124,7 @@ def get_lru_result(system_info: dict, references: str):
             is_page_fault = True
             result.increase_total_page_fault()
 
-        result.update_result(references[time], allocated_page_frames, is_page_fault)
+        result.update(references[time], allocated_page_frames, is_page_fault)
     
     return result
 
@@ -164,7 +164,7 @@ def get_lfu_result(system_info: dict, references: str):
             is_page_fault = True
             result.increase_total_page_fault()
 
-        result.update_result(references[time], allocated_page_frames, is_page_fault)
+        result.update(references[time], allocated_page_frames, is_page_fault)
     
     return result
 
@@ -189,7 +189,7 @@ def get_ws_result(system_info: dict, references: str):
             is_page_fault = True
             result.increase_total_page_fault()
         
-        result.ws_update_result(references[time], allocated_page_frames, is_page_fault, deleted_page)
+        result.ws_update(references[time], allocated_page_frames, is_page_fault, deleted_page)
 
     return result
 

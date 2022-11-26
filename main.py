@@ -11,7 +11,7 @@
 6. 결과 출력 함수
 
 출력 내용(page replacement 기법 별로 출력):
-- 시간별 ref.string, memory state, page fault 여부
+- 시간별 ref.string, memory state, page fault 여부 등
 - 총 page fault 횟수
 """
 
