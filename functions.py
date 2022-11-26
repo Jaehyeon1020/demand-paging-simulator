@@ -37,7 +37,7 @@ def append_to_frame(allocated_page_frames: list, page: str, limit: int):
         return True, True
 
 # 할당되어있는 페이지들 중 time으로부터 가장 오랫동안 참조되지 않을 페이지의 index를 반환
-def get_min_index(allocated_page_frames: list, time: int, references: str):
+def get_min_index(allocated_page_frames: list, time: int, references: list):
     distance = 0 # 앞으로 얼만큼의 시간동안 참조되지 않는지를 count
     page_distances = [-1 for i in range(len(allocated_page_frames))]
 
@@ -59,7 +59,7 @@ def get_min_index(allocated_page_frames: list, time: int, references: str):
 
 
 # MIN 기법을 사용했을 때의 동작 구현
-def get_min_result(system_info: dict, references: str):
+def get_min_result(system_info: dict, references: list):
     result = Result("MIN") # saving result: type MIN
 
     frames = system_info["frames"]  # 할당 page frame 개수
@@ -100,7 +100,7 @@ def get_lru_index(allocated_page_frames: list, last_references_time: list):
     return last_references_time_allocated.index(referenced_minimum) # allocated_page_frames에서 가장 적게 참조된 page가 있는 index 반환
 
 # LRU(Least Recently Used) 기법을 사용했을 때의 동작 구현
-def get_lru_result(system_info: dict, references: str):
+def get_lru_result(system_info: dict, references: list):
     result = Result("LRU")
 
     pages = system_info["pages"] # process가 갖는 page 개수
@@ -140,7 +140,7 @@ def get_lfu_index(allocated_page_frames: list, reference_frequents: list):
     return reference_frequents_allocated.index(referenced_minimum)
     
 # LFU(Least Frequently Used) 기법을 사용했을 때의 동작 구현
-def get_lfu_result(system_info: dict, references: str):
+def get_lfu_result(system_info: dict, references: list):
     result = Result("LFU")
 
     pages = system_info["pages"] # process가 갖는 page 개수
@@ -169,19 +169,17 @@ def get_lfu_result(system_info: dict, references: str):
     return result
 
 # WS(Working Set Memory Management) 기법을 사용했을 때의 동작 구현
-def get_ws_result(system_info: dict, references: str):
+def get_ws_result(system_info: dict, references: list):
     result = Result("WS")
 
-    pages = system_info["pages"] # process가 갖는 page 개수
     window_size = system_info["window_size"] # window 크기
     reference_len = system_info["len_page_reference_string"] # page reference string 길이
     allocated_page_frames = [] # 현재 할당된 page frame
-    residence_size = 0 # 메모리에 할당된 frame 개수 저장(매 시점마다 result 객체 저장)
 
     for time in range(0, reference_len):
         is_page_fault = False # page fault flag
         current_window = references[time - window_size : time + 1] # 현재 reference string에서 frame에 올라갈 수 있는 부분(Working Set)
-        deleted_page = reset_ws(current_window, allocated_page_frames) # reset working set
+        deleted_page = reset_ws(current_window, allocated_page_frames, window_size, time) # reset working set
         is_new_allocate = ws_append_to_frame(allocated_page_frames,references[time]) # 현재 시점에 필요한 page를 frame에 할당
 
         # 새로운 frame이 할당된 경우: page fault 발생 기록 / 총 page fault +1
@@ -203,15 +201,17 @@ def ws_append_to_frame(allocated_page_frames: list, page: str):
         return True
 
 # 현재 Working Set에서 할당가능하지 않은 page를 frame에서 제거하고 제거된 페이지 반환
-def reset_ws(current_window: str, allocated_page_frames: list):
+# time이 working set size만큼 지나지 않았다면 별도로 페이지 삭제하지 않음
+def reset_ws(current_window: str, allocated_page_frames: list, window_size: int, time: int):
     is_deleted_page = False # 삭제된 페이지 있는지 flag
-
-    for page in allocated_page_frames:
-        # 현재 Working Set에 해당 페이지가 없다면 삭제
-        if page not in current_window:
-            is_deleted_page = True
-            deleted_page = allocated_page_frames[allocated_page_frames.index(page)]
-            del allocated_page_frames[allocated_page_frames.index(page)]
+    
+    if time > window_size:
+        for page in allocated_page_frames:
+            # 현재 Working Set에 해당 페이지가 없다면 삭제
+            if page not in current_window:
+                is_deleted_page = True
+                deleted_page = allocated_page_frames[allocated_page_frames.index(page)]
+                del allocated_page_frames[allocated_page_frames.index(page)]
     
     if is_deleted_page:
         return deleted_page

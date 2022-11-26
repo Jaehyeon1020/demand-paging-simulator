@@ -25,6 +25,7 @@ input = open("input.txt", "r")  # open file
 first_line = input.readline() # get first line: N(pages) M(frames) W(window_size) K(len_page_reference_string)
 page_reference_string = input.readline() # get second line: page reference string
 
+page_reference_string = page_reference_string.split(' ') # split page reference string to list
 system_info = get_system_info(first_line) # get system info dictionary
 
 min_result = get_min_result(system_info, page_reference_string) # execute by MIN algorithm and get Result instance

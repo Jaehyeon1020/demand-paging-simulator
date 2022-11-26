@@ -33,8 +33,8 @@ class Result:
         for result in self.memory_info:
             print("----------------------------------------------------")
             print("<TIME %d>"%time)
-            print("Reference string: %s"%result[0]) # print ref string
-            print("Memory state(Pages in memory): ", end='')
+            print("Reference page : %s"%result[0]) # print ref page
+            print("Residence set : ", end='')
             print(result[1]) # print memory state
             print("Page fault at time %d : "%time, end='')
 
@@ -61,8 +61,8 @@ class Result:
         for result in self.memory_info:
             print("----------------------------------------------------")
             print("<TIME %d>"%time)
-            print("Reference string: %s"%result[0]) # print ref string
-            print("Memory state(Pages in memory): ", end='')
+            print("Reference page : %s"%result[0]) # print ref page
+            print("Residence set : ", end='')
             print(result[1]) # print memory state
             print("Page fault at time %d : "%time, end='')
 
@@ -79,38 +79,3 @@ class Result:
 
         print("====================================================")
         print("====================================================")
-
-    """
-    # print result(s)
-    def print_result(self):
-        time = 1
-        print("\n========================================================")
-        print("================= %s ALGORITHM RESULT ================="%self.type)
-        print("========================================================")
-        print("{:<8} {:<20} {:<15} {:<10}".format("Time", "Reference String", "Memory State", "Page Fault"))
-        for result in self.memory_info:
-            page_fault_symbol = "F" if result[2] else ""
-            print("{:<8} {:<20} {:<15} {:<10}".format(time, result[0], ",".join(result[1]), page_fault_symbol))
-
-            time += 1
-        
-        print("\nTotal page fault(s): %d"%self.total_page_faults)
-        print("========================================================\n")
-
-    # (WS Algorithm ONLY) print result(s)
-    def ws_print_result(self):
-        time = 1
-        print("\n=======================================================================================================")
-        print("========================================= %s ALGORITHM RESULT ========================================="%self.type)
-        print("=======================================================================================================")
-        print("{:<8} {:<20} {:<15} {:<14} {:<19} {:<20}".format("Time", "Reference String", "Memory State", "Page Fault", "Deleted From WS", "# of Frames Allocated"))
-        for result in self.memory_info:
-            page_fault_symbol = "F" if result[2] else ""
-            deleted_symbol = "" if result[3] is None else result[3]
-            print("{:<8} {:<20} {:<15} {:<14} {:<19} {:<20}".format(time, result[0], ",".join(result[1]), page_fault_symbol, deleted_symbol, len(result[1])))
-
-            time += 1
-        
-        print("\nTotal page fault(s): %d"%self.total_page_faults)
-        print("=======================================================================================================\n")
-        """
